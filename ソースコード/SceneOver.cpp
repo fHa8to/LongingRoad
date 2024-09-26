@@ -52,7 +52,7 @@ namespace
 
 SceneOver::SceneOver():
 	m_handle(false),
-	modelHandle(false),
+	m_modelHandle(false),
 	m_pos(VGet(0.0f,0.0f,0.0f)),
 	m_cameraPos(VGet(0.0f, 0.0f, 0.0f))
 
@@ -64,29 +64,29 @@ SceneOver::~SceneOver()
 	DeleteGraph(m_handle);
 
 
-	MV1DeleteModel(modelHandle);
-	MV1DeleteModel(modelHandle2);
+	MV1DeleteModel(m_modelHandle);
+	MV1DeleteModel(m_modelHandle2);
 
 }
 
 void SceneOver::Init()
 {
-	isSceneEnd = false;
+	m_isSceneEnd = false;
 
-	fadeAlpha = kFadeValue;
+	m_fadeAlpha = kFadeValue;
 
 	m_handle = LoadGraph("data/data/GameOver.png");
 
-	modelHandle = MV1LoadModel("data/model/knight.mv1");
+	m_modelHandle = MV1LoadModel("data/model/knight.mv1");
 
-	modelHandle2 = MV1LoadModel("data/model/tileHigh_forest.mv1");
+	m_modelHandle2 = MV1LoadModel("data/model/tileHigh_forest.mv1");
 
 	//モデルのサイズ調整
-	MV1SetScale(modelHandle, VGet(kExpansion, kExpansion, kExpansion));
-	MV1SetScale(modelHandle2, VGet(2000, 50, 400));
+	MV1SetScale(m_modelHandle, VGet(kExpansion, kExpansion, kExpansion));
+	MV1SetScale(m_modelHandle2, VGet(2000, 50, 400));
 
 	//アニメーションの初期設定
-	m_currentAnimNo = MV1AttachAnim(modelHandle, kStandByAnimIndex, -1, true);
+	m_currentAnimNo = MV1AttachAnim(m_modelHandle, kStandByAnimIndex, -1, true);
 
 	SetFontSize(kFontSize);
 
@@ -105,37 +105,37 @@ std::shared_ptr<SceneBase> SceneOver::Update()
 	if (Pad::IsTrigger(PAD_INPUT_1))	// パッドの1ボタンorキーボードのZキー
 	{
 
-		isSceneEnd = true;
+		m_isSceneEnd = true;
 		PlaySoundFile(kBgmButton, DX_PLAYTYPE_BACK);
 
 	}
 
-	if (isSceneEnd && fadeAlpha >= kFadeValue)
+	if (m_isSceneEnd && m_fadeAlpha >= kFadeValue)
 	{
 		return std::make_shared<SceneTitle>();
 
 	}
 
 	//モデルの位置更新
-	MV1SetPosition(modelHandle, m_pos);
-	MV1SetPosition(modelHandle2, VGet(kPosX - 100, kPosY - 100, kPosZ));
+	MV1SetPosition(m_modelHandle, m_pos);
+	MV1SetPosition(m_modelHandle2, VGet(kPosX - 100, kPosY - 100, kPosZ));
 
 
 	//フレームイン、アウト
-	if (isSceneEnd)
+	if (m_isSceneEnd)
 	{
-		fadeAlpha += kFadeUpDown;
-		if (fadeAlpha > kFadeValue)
+		m_fadeAlpha += kFadeUpDown;
+		if (m_fadeAlpha > kFadeValue)
 		{
-			fadeAlpha = kFadeValue;
+			m_fadeAlpha = kFadeValue;
 		}
 	}
 	else
 	{
-		fadeAlpha -= kFadeUpDown;
-		if (fadeAlpha < 0)
+		m_fadeAlpha -= kFadeUpDown;
+		if (m_fadeAlpha < 0)
 		{
-			fadeAlpha = 0;
+			m_fadeAlpha = 0;
 		}
 	}
 
@@ -148,8 +148,8 @@ void SceneOver::Draw()
 {
 	DrawGraph(0, 0, m_handle, true);
 
-	MV1DrawModel(modelHandle);
-	MV1DrawModel(modelHandle2);
+	MV1DrawModel(m_modelHandle);
+	MV1DrawModel(m_modelHandle2);
 
 #ifdef _DEBUG
 
@@ -158,7 +158,7 @@ void SceneOver::Draw()
 #endif
 
 	//フェードの描画
-	SetDrawBlendMode(DX_BLENDMODE_ALPHA, fadeAlpha); //半透明で表示
+	SetDrawBlendMode(DX_BLENDMODE_ALPHA, m_fadeAlpha); //半透明で表示
 	DrawBox(0, 0, Game::kScreenWidth, Game::kScreenHeight, GetColor(0, 0, 0), true);
 	SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0); //不透明に戻しておく
 
@@ -177,8 +177,8 @@ void SceneOver::Animation()
 		m_animBlendRate += kAnimChangeRateSpeed;
 		if (m_animBlendRate >= 1.0f) m_animBlendRate = 1.0f;
 		//変更後のアニメーション割合を設定する
-		MV1SetAttachAnimBlendRate(modelHandle, m_prevAnimNo, 1.0f - m_animBlendRate);
-		MV1SetAttachAnimBlendRate(modelHandle, m_currentAnimNo, m_animBlendRate);
+		MV1SetAttachAnimBlendRate(m_modelHandle, m_prevAnimNo, 1.0f - m_animBlendRate);
+		MV1SetAttachAnimBlendRate(m_modelHandle, m_currentAnimNo, m_animBlendRate);
 	}
 	bool isLoop = UpdateAnim(m_currentAnimNo);
 	if (isLoop)
@@ -194,13 +194,13 @@ bool SceneOver::UpdateAnim(int attachNo)
 	if (attachNo == -1) return false;
 
 	//アニメーションを進行させる
-	float now = MV1GetAttachAnimTime(modelHandle, attachNo);
+	float now = MV1GetAttachAnimTime(m_modelHandle, attachNo);
 
 	//アニメーション進める
 	now += 0.5f;
 
 	//現在再生中のアニメーションの総カウントを取得する
-	float total = MV1GetAttachAnimTotalTime(modelHandle, attachNo);
+	float total = MV1GetAttachAnimTotalTime(m_modelHandle, attachNo);
 	bool isLoop = false;
 
 	while (now >= total)
@@ -210,7 +210,7 @@ bool SceneOver::UpdateAnim(int attachNo)
 	}
 
 	//進めた時間に設定
-	MV1SetAttachAnimTime(modelHandle, attachNo, now);
+	MV1SetAttachAnimTime(m_modelHandle, attachNo, now);
 	return isLoop;
 }
 
@@ -219,20 +219,20 @@ void SceneOver::ChangeAnim(int animIndex)
 	//さらに古いアニメーションがアタッチされている場合はこの時点で削除しておく
 	if (m_prevAnimNo != -1)
 	{
-		MV1DetachAnim(modelHandle, m_prevAnimNo);
+		MV1DetachAnim(m_modelHandle, m_prevAnimNo);
 	}
 
 	//現在再生中の待機アニメーションは変更前のアニメーション扱いに
 	m_prevAnimNo = m_currentAnimNo;
 
 	//変更後のアニメーションとして攻撃アニメーションを改めて設定する
-	m_currentAnimNo = MV1AttachAnim(modelHandle, animIndex, -1, false);
+	m_currentAnimNo = MV1AttachAnim(m_modelHandle, animIndex, -1, false);
 
 	//切り替えの瞬間は変更前のアニメーションが再生される状態にする
 	m_animBlendRate = 0.0f;
 
 	//変更前のアニメーション100%
-	MV1SetAttachAnimBlendRate(modelHandle, m_prevAnimNo, 1.0f - m_animBlendRate);
+	MV1SetAttachAnimBlendRate(m_modelHandle, m_prevAnimNo, 1.0f - m_animBlendRate);
 	//変更後のアニメーション0%
-	MV1SetAttachAnimBlendRate(modelHandle, m_currentAnimNo, m_animBlendRate);
+	MV1SetAttachAnimBlendRate(m_modelHandle, m_currentAnimNo, m_animBlendRate);
 }

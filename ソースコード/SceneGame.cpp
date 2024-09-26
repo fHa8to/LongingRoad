@@ -77,14 +77,14 @@ SceneGame::SceneGame():
 	m_pCamera = std::make_shared<Camera>();
 
 	//3Dモデルの読み込み
-	modelHandle = MV1LoadModel(kModelFilename);
+	m_modelHandle = MV1LoadModel(kModelFilename);
 
-	bgm = LoadSoundMem("data/sound/fantasy02.mp3");
-	bgmPlayer = LoadSoundMem("data/sound/Player.mp3");
-	bgmEnemy = LoadSoundMem("data/sound/AxeSound.mp3");
+	m_bgm = LoadSoundMem("data/sound/fantasy02.mp3");
+	m_bgmPlayer = LoadSoundMem("data/sound/Player.mp3");
+	m_bgmEnemy = LoadSoundMem("data/sound/AxeSound.mp3");
 
 
-	PlaySoundMem(bgm, DX_PLAYTYPE_LOOP);
+	PlaySoundMem(m_bgm, DX_PLAYTYPE_LOOP);
 
 }
 
@@ -95,7 +95,7 @@ SceneGame::~SceneGame()
 
 void SceneGame::Init()
 {
-	MV1SetScale(modelHandle, VGet(kExpansionX, kExpansionY, kExpansionZ));
+	MV1SetScale(m_modelHandle, VGet(kExpansionX, kExpansionY, kExpansionZ));
 	m_pPlayer->Init();
 	m_pEnemy->Init();
 	m_pCamera->Init();
@@ -103,11 +103,11 @@ void SceneGame::Init()
 	SetFontSize(kFontSize);
 
 
-	playerHp = P_HP_MAX;
-	playerDrawValue = playerHp * P_DRAW_SIZE;
+	m_playerHp = P_HP_MAX;
+	m_playerDrawValue = m_playerHp * P_DRAW_SIZE;
 
-	enemyHp = E_HP_MAX;
-	enemyDrawValue = enemyHp * E_DRAW_SIZE;
+	m_enemyHp = E_HP_MAX;
+	m_enemyDrawValue = m_enemyHp * E_DRAW_SIZE;
 
 }
 
@@ -115,17 +115,17 @@ std::shared_ptr<SceneBase> SceneGame::Update()
 {
 	
 
-	int pTargetValut = playerHp * P_DRAW_SIZE;
+	int pTargetValut = m_playerHp * P_DRAW_SIZE;
 
-	if (playerDrawValue > pTargetValut)
+	if (m_playerDrawValue > pTargetValut)
 	{
-		playerDrawValue--;
+		m_playerDrawValue--;
 	}
-	int eTargetValut = enemyHp * E_DRAW_SIZE;
+	int eTargetValut = m_enemyHp * E_DRAW_SIZE;
 
-	if (enemyDrawValue > eTargetValut)
+	if (m_enemyDrawValue > eTargetValut)
 	{
-		enemyDrawValue--;
+		m_enemyDrawValue--;
 	}
 	
 	m_cameraPos = m_pCamera->GetCameraPos();
@@ -142,7 +142,7 @@ std::shared_ptr<SceneBase> SceneGame::Update()
 	m_pEnemy->Update(m_playerPos);
 	m_pCamera->Update(m_playerPos);
 
-	MV1SetPosition(modelHandle, m_pos);
+	MV1SetPosition(m_modelHandle, m_pos);
 
 
 
@@ -158,14 +158,14 @@ std::shared_ptr<SceneBase> SceneGame::Update()
 		VECTOR posVec;
 		VECTOR moveVec;
 
-		PlaySoundMem(bgmPlayer, DX_PLAYTYPE_BACK);
+		PlaySoundMem(m_bgmPlayer, DX_PLAYTYPE_BACK);
 		//エネミーのベクトル座標からプレイヤーのベクトル座標を引いたベクトル
 		posVec = VSub(m_pEnemy->GetPos(), m_pPlayer->GetPos());
 
 		moveVec = VScale(posVec,  - (m_pPlayer->GetRadius() + m_pEnemy->GetRadius()));
 		m_pPlayer->SetPos(VAdd(m_pPlayer->GetPos(), moveVec));
 
-		playerHp -= 1;
+		m_playerHp -= 1;
 
 	}
 
@@ -175,21 +175,21 @@ std::shared_ptr<SceneBase> SceneGame::Update()
 		VECTOR posVec2;
 		VECTOR moveVec2;
 
-		PlaySoundMem(bgmEnemy, DX_PLAYTYPE_BACK);
+		PlaySoundMem(m_bgmEnemy, DX_PLAYTYPE_BACK);
 		//プレイヤーのベクトル座標からエネミーのベクトル座標を引いたベクトル
 		posVec2 = VSub(m_pPlayer->GetPos(),m_pEnemy->GetPos());
 
 		moveVec2 = VScale(posVec2,  - (m_pPlayer->GetRadius() + m_pEnemy->GetRadius()));
 		m_pEnemy->SetPos(VAdd(m_pEnemy->GetPos(), moveVec2));
 
-		enemyHp -= 1;
+		m_enemyHp -= 1;
 	}
 
 
 	//プレイヤーのHPがゼロになったら
-	if (playerHp <= 0)
+	if (m_playerHp <= 0)
 	{
-		StopSoundMem(bgm);
+		StopSoundMem(m_bgm);
 		//SceneOverに遷移
 		return std::make_shared<SceneOver>();
 
@@ -197,9 +197,9 @@ std::shared_ptr<SceneBase> SceneGame::Update()
 	}
 
 	//エネミーのHPがゼロになったら
-	if (enemyHp <= 0)
+	if (m_enemyHp <= 0)
 	{
-		StopSoundMem(bgm);
+		StopSoundMem(m_bgm);
 		//SceneClearに遷移
 		return std::make_shared<SceneClear>();
 
@@ -215,7 +215,7 @@ std::shared_ptr<SceneBase> SceneGame::Update()
 void SceneGame::Draw()
 {
 	// ３Ｄモデルの描画
-	MV1DrawModel(modelHandle);
+	MV1DrawModel(m_modelHandle);
 
 
 #ifdef _DEBUG
@@ -230,15 +230,15 @@ void SceneGame::Draw()
 
 	//プレイヤーのHPバー
 	int playerColor = GetColor(0, 255, 0);
-	DrawFormatString(15, 600, GetColor(0, 255, 255), "HP ", playerDrawValue);
+	DrawFormatString(15, 600, GetColor(0, 255, 255), "HP ", m_playerDrawValue);
 	DrawFillBox(48, 598, 352, 618, GetColor(255, 255, 255));
-	DrawFillBox(50, 600, 100 + playerHp * P_DRAW_SIZE, 616, playerColor);
+	DrawFillBox(50, 600, 100 + m_playerHp * P_DRAW_SIZE, 616, playerColor);
 	
 	//エネミーのHPバー
 	int enemyColor = GetColor(255, 0, 0);
-	DrawFormatString(15, 50, GetColor(0, 255, 255), "HP ", enemyDrawValue);
+	DrawFormatString(15, 50, GetColor(0, 255, 255), "HP ", m_enemyDrawValue);
 	DrawFillBox(48, 48, 352, 68, GetColor(255, 255, 255));
-	DrawFillBox(50, 50, 100 + enemyHp * E_DRAW_SIZE, 66, enemyColor);
+	DrawFillBox(50, 50, 100 + m_enemyHp * E_DRAW_SIZE, 66, enemyColor);
 
 
 #ifdef _DEBUG

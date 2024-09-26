@@ -69,16 +69,16 @@ private:
 	bool m_isAttackHit;
 	bool m_isGimmickHit;
 
-	int modelHandle;
+	int m_modelHandle;
 
-	int playerHp;
-	int playerDrawValue;
-	int enemyHp;
-	int enemyDrawValue;
+	int m_playerHp;
+	int m_playerDrawValue;
+	int m_enemyHp;
+	int m_enemyDrawValue;
 
-	int bgm;
-	int bgmPlayer;
-	int bgmEnemy;
+	int m_bgm;
+	int m_bgmPlayer;
+	int m_bgmEnemy;
 
 	VECTOR m_pos;
 

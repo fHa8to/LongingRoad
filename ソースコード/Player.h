@@ -53,7 +53,7 @@ private:
 
 
 private:
-	int		modelHandle;	//モデルハンドル
+	int		m_modelHandle;	//モデルハンドル
 
 	//アニメーション情報
 	int m_currentAnimNo;
@@ -92,7 +92,7 @@ private:
 	//カメラの位置
 	VECTOR m_cameraPos;
 
-	float angle;
+	float m_angle;
 
 	//当たり判定の半径
 	float m_radius;

@@ -60,18 +60,18 @@ namespace
 }
 
 Player::Player():
-	modelHandle(-1),
+	m_modelHandle(-1),
 	m_currentAnimNo(-1),
 	m_prevAnimNo(-1),
 	m_animBlendRate(0.0f),
 	m_pos(),
-	angle(0.0f),
+	m_angle(0.0f),
 	m_isAttack(false),
 	m_cameraAngle(0.0f),
 	m_radius(6.0f)
 {
 	//3Dモデルの読み込み
-	modelHandle = MV1LoadModel(kModelFilename);
+	m_modelHandle = MV1LoadModel(kModelFilename);
 }
 
 Player::~Player()
@@ -82,10 +82,10 @@ void Player::Init()
 {	
 
 
-	MV1SetScale(modelHandle, VGet(kExpansion, kExpansion, kExpansion));
+	MV1SetScale(m_modelHandle, VGet(kExpansion, kExpansion, kExpansion));
 
 	//アニメーションの初期設定
-	m_currentAnimNo = MV1AttachAnim(modelHandle, kIdleAnimIndex, -1, false);
+	m_currentAnimNo = MV1AttachAnim(m_modelHandle, kIdleAnimIndex, -1, false);
 	m_prevAnimNo - 1;
 	m_animBlendRate = 1.0f;
 
@@ -107,9 +107,9 @@ void Player::Update(VECTOR cameraPos)
 		m_animBlendRate += kAnimChangeRateSpeed;
 		if (m_animBlendRate >= 1.0f)	m_animBlendRate = 1.0f;
 		//変更前のアニメーション100%
-		MV1SetAttachAnimBlendRate(modelHandle, m_prevAnimNo, 1.0f - m_animBlendRate);
+		MV1SetAttachAnimBlendRate(m_modelHandle, m_prevAnimNo, 1.0f - m_animBlendRate);
 		//変更後のアニメーション0%
-		MV1SetAttachAnimBlendRate(modelHandle, m_currentAnimNo, m_animBlendRate);
+		MV1SetAttachAnimBlendRate(m_modelHandle, m_currentAnimNo, m_animBlendRate);
 
 	}
 
@@ -170,7 +170,7 @@ void Player::Update(VECTOR cameraPos)
 
 			if (VSquareSize(move) > 0.0f)
 			{
-				angle = -atan2f(move.z, move.x) - DX_PI_F / 2;
+				m_angle = -atan2f(move.z, move.x) - DX_PI_F / 2;
 			}
 
 			m_pos = VAdd(m_pos, move);
@@ -194,7 +194,7 @@ void Player::Update(VECTOR cameraPos)
 				m_direction = kDown;
 				ChangeAnim(kWalkAnimIndex);
 
-				MV1SetRotationXYZ(modelHandle, VGet(0, kRotateDown, 0));
+				MV1SetRotationXYZ(m_modelHandle, VGet(0, kRotateDown, 0));
 
 			}
 			if (Pad::IsRelase(PAD_INPUT_RIGHT))
@@ -210,7 +210,7 @@ void Player::Update(VECTOR cameraPos)
 
 				ChangeAnim(kWalkAnimIndex);
 
-				MV1SetRotationXYZ(modelHandle, VGet(0, kRotateUp, 0));
+				MV1SetRotationXYZ(m_modelHandle, VGet(0, kRotateUp, 0));
 
 			}
 			if (Pad::IsRelase(PAD_INPUT_LEFT))
@@ -226,7 +226,7 @@ void Player::Update(VECTOR cameraPos)
 
 				ChangeAnim(kWalkAnimIndex);
 
-				MV1SetRotationXYZ(modelHandle, VGet(0, kRotateRight, 0));
+				MV1SetRotationXYZ(m_modelHandle, VGet(0, kRotateRight, 0));
 
 			}
 			if (Pad::IsRelase(PAD_INPUT_UP))
@@ -242,7 +242,7 @@ void Player::Update(VECTOR cameraPos)
 
 				ChangeAnim(kWalkAnimIndex);
 
-				MV1SetRotationXYZ(modelHandle, VGet(0, kRotateLeft, 0));
+				MV1SetRotationXYZ(m_modelHandle, VGet(0, kRotateLeft, 0));
 
 			}
 			if (Pad::IsRelase(PAD_INPUT_DOWN))
@@ -265,15 +265,15 @@ void Player::Update(VECTOR cameraPos)
 	}
 
 
-	MV1SetPosition(modelHandle, m_pos);
-	MV1SetRotationXYZ(modelHandle, VGet(0, angle, 0));
+	MV1SetPosition(m_modelHandle, m_pos);
+	MV1SetRotationXYZ(m_modelHandle, VGet(0, m_angle, 0));
 	
 }
 
 void Player::Draw()
 {
 	// ３Ｄモデルの描画
-	MV1DrawModel(modelHandle);
+	MV1DrawModel(m_modelHandle);
 
 #ifdef _DEBUG
 
@@ -294,10 +294,10 @@ bool Player::UpdateAnim(int attachNo)
 	if (attachNo == -1) return false;
 
 	//アニメーションを進行させる
-	float now = MV1GetAttachAnimTime(modelHandle, attachNo);	//現在の再生カウントを取得
+	float now = MV1GetAttachAnimTime(m_modelHandle, attachNo);	//現在の再生カウントを取得
 
 	//現在再生中のアニメーションの総カウントを取得
-	float total = MV1GetAttachAnimTotalTime(modelHandle, attachNo);
+	float total = MV1GetAttachAnimTotalTime(m_modelHandle, attachNo);
 	bool isLoop = false;
 	//アニメーション進める
 	now += 0.5f;
@@ -309,7 +309,7 @@ bool Player::UpdateAnim(int attachNo)
 	}
 
 	//進めた時間の設定
-	MV1SetAttachAnimTime(modelHandle, attachNo, now);
+	MV1SetAttachAnimTime(m_modelHandle, attachNo, now);
 
 	return isLoop;
 }
@@ -319,22 +319,22 @@ void Player::ChangeAnim(int animIndex)
 	//さらに古いアニメーションがアタッチされている場合はこの時点で削除しておく
 	if (m_prevAnimNo != -1)
 	{
-		MV1DetachAnim(modelHandle, m_prevAnimNo);
+		MV1DetachAnim(m_modelHandle, m_prevAnimNo);
 	}
 
 	//現在再生中の待機アニメーションは変更前のアニメーション扱いに
 	m_prevAnimNo = m_currentAnimNo;
 
 	//変更後のアニメーションとして攻撃アニメーションを改めて設定する
-	m_currentAnimNo = MV1AttachAnim(modelHandle, animIndex, -1, false);
+	m_currentAnimNo = MV1AttachAnim(m_modelHandle, animIndex, -1, false);
 
 	//切り替えの瞬間は変更後のアニメーションが再生される
 	m_animBlendRate = 0.0f;
 
 	//変更前のアニメーション100%
-	MV1SetAttachAnimBlendRate(modelHandle, m_prevAnimNo, 1.0f - m_animBlendRate);
+	MV1SetAttachAnimBlendRate(m_modelHandle, m_prevAnimNo, 1.0f - m_animBlendRate);
 	//変更後のアニメーション0%
-	MV1SetAttachAnimBlendRate(modelHandle, m_currentAnimNo, m_animBlendRate);
+	MV1SetAttachAnimBlendRate(m_modelHandle, m_currentAnimNo, m_animBlendRate);
 }
 
 

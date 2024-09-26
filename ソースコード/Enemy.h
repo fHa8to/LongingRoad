@@ -56,12 +56,12 @@ private:
 	//状態
 	int m_state;
 
-	int modelHandle;		//モデルハンドル
+	int m_modelHandle;		//モデルハンドル
 
 	//アニメーション情報
-	int currentAnimNo;
-	int prevAnimNo;
-	float animBlendRate;
+	int m_currentAnimNo;
+	int m_prevAnimNo;
+	float m_animBlendRate;
 
 	//当たり判定の半径
 	float m_radius;
@@ -70,14 +70,13 @@ private:
 	VECTOR m_pos;
 	VECTOR playerPos;
 
-	float Angle;
 
-	float angle;
+	float m_angle;
 
 	//攻撃しているかを保持する
-	bool isAttacking;
+	bool m_isAttacking;
 
-	int isAttack;
+	int m_isAttack;
 
 	//進む距離
 	VECTOR m_distance;

@@ -32,25 +32,23 @@ private:
 private:
 
 	//モデル
-	int modelHandle;
-	int modelHandle2;
+	int m_modelHandle;
+	int m_modelHandle2;
 
 	//状態
 	int m_state;
 
-	int handle;
+	int m_handle;
 
-	int fadeAlpha;
+	int m_fadeAlpha;
 
-	bool isSceneEnd;
+	bool m_isSceneEnd;
 
 	//アニメーション情報
 	int m_currentAnimNo;	//現在のアニメーション
 	int m_prevAnimNo;		//変更前のアニメーション
 	float m_animBlendRate;	//アニメーション合成割合
 
-	//ハンドル
-	int m_handle;
 
 	//モデルの座標
 	VECTOR m_pos;
